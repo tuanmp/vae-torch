@@ -1,0 +1,45 @@
+model: 
+  model_class: VAE
+  x_dim: 2
+  sample_dim: 2
+  cond_dim: 1
+  enc_hidden_dim: [32,32,32,32]
+  dec_hidden_dim: [32,32,32,32]
+  hidden_activation: LeakyReLU
+  batch_size: 1
+  learning_rate: 0.001
+  n_samples: 20
+
+data: 
+  dataset_class: TwoMoonDataset
+  sample_size: 256
+
+
+training:
+  batch_size: 32
+  devices: [0]
+  num_workers: 8
+  num_epochs: 200
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  log_wandb: false
+  wandb_project: ViT-Base-EuroSAT_RGB
+  wandb_group: unfreeze_backbone
+  save_dir: ./checkpoints
+  callbacks:
+    - callback: ModelCheckpoint
+      monitor: val_loss
+      mode: min
+      save_top_k: 1
+      save_last: true
+      save_weights_only: false
+    - callback: RichProgressBar
+    - callback: RichModelSummary
+    - callback: LearningRateMonitor
+      logging_interval: step
+    - callback: EarlyStopping
+      monitor: val_loss
+      mode: min
+      patience: 20
+      verbose: false
+      strict: true
